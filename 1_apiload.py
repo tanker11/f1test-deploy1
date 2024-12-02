@@ -12,10 +12,10 @@ class LoadService:
     '''
     Handles db and table creation
     '''
-    def __init__(self, db_name="/home/site/db/loaddata.db"):
+    def __init__(self, loggervar, db_name="/home/site/db/loaddata.db"):
         #Logger needed for console logs in the cloud
         logging.basicConfig(level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
+        self.logger = loggervar
         self.db_name = db_name
         self.status = "init"  # Inicializált állapot
         self.init_db()
@@ -172,8 +172,10 @@ class LoadService:
             #Show if any error
             return jsonify({"error": str(e)}), 500
 
+logging.basicConfig(level=logging.INFO)
+mylogger = logging.getLogger(__name__)
 app = Flask(__name__)
-service = LoadService()
+service = LoadService(mylogger)
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -193,8 +195,6 @@ def background_task():
         logger.info(f"Background task error: {e}")
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
     #Starting background task
     threading.Thread(target=background_task, daemon=True).start()
     

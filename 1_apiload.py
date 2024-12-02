@@ -192,4 +192,4 @@ if __name__ == "__main__":
     #Starting background task
     threading.Thread(target=background_task, daemon=True).start()
     #Starting Flask
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=80)

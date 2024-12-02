@@ -1,0 +1,8 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+COPY 2_transform.py /app
+
+RUN mkdir -p /app/db && chmod -R 777 /app/db && pip install flask requests pandas
+
+CMD ["python", "2_transform.py"]

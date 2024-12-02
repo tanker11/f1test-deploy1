@@ -1,0 +1,32 @@
+services:
+  apiload1:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-1-apiload
+    container_name: 1_apiload
+    ports:
+      - "5000:5000"
+    environment:
+      - SERVICE_NAME=1_apiload
+  transform2:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-2-transform
+    container_name: 2_transform
+    ports:
+      - "5001:5001"
+    environment:
+      - SERVICE_NAME=2_transform
+
+
+  display3:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-3-display
+    container_name: 3_display
+    ports:
+      - "5002:5002"
+    depends_on:
+      - apiload1
+      - transform2
+

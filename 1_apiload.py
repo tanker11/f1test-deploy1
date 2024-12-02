@@ -13,6 +13,9 @@ class LoadService:
     Handles db and table creation
     '''
     def __init__(self, db_name="/home/site/db/loaddata.db"):
+        #Logger needed for console logs in the cloud
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
         self.db_name = db_name
         self.status = "init"  # Inicializált állapot
         self.init_db()
@@ -63,11 +66,11 @@ class LoadService:
                     )
                 ''')
                 conn.commit()
-            logger.info("Database initialized.")
-            logger.info(f"Database path: {os.path.abspath(self.db_name)}")
+            self.logger.info("Database initialized.")
+            self.logger.info(f"Database path: {os.path.abspath(self.db_name)}")
         except Exception as e:
             self.status = "error"
-            logger.info(f"Error initializing database: {e}")
+            self.logger.info(f"Error initializing database: {e}")
             raise
 
     def fetch_and_store(self):
@@ -77,7 +80,7 @@ class LoadService:
         self.status = "loading"  # Set actual state of the service
         try:
             # Accessing meeting (weekend) list
-            logger.info('Accessing meeting list...')
+            self.logger.info('Accessing meeting list...')
             response = urlopen('https://api.openf1.org/v1/meetings?year=2023')
             mtg_data = json.loads(response.read().decode('utf-8'))
             mtg_df = pd.DataFrame(mtg_data)
@@ -85,7 +88,7 @@ class LoadService:
             # Storing meeting in database
             with sqlite3.connect(self.db_name) as conn:
                 mtg_df.to_sql('meetings', conn, if_exists='replace', index=False)
-            logger.info(f'{len(mtg_df)} meetings stored.')
+            self.logger.info(f'{len(mtg_df)} meetings stored.')
 
             time.sleep(1) # Access frequency limit
 
@@ -95,7 +98,7 @@ class LoadService:
 
             # Accessing Session and Position data based on meeting_key
             for meeting in mtg_data:
-                logger.info(f"Fetching {meeting['meeting_name']} session data...")
+                self.logger.info(f"Fetching {meeting['meeting_name']} session data...")
                 response = urlopen(f"https://api.openf1.org/v1/sessions?meeting_key={meeting['meeting_key']}")
                 session_data = json.loads(response.read().decode('utf-8'))
                 session_actual = pd.DataFrame(session_data)
@@ -105,7 +108,7 @@ class LoadService:
                     '''
                     Iterates through all sessions to get all positions
                     '''
-                    logger.info(f"    {session['session_key']} position details...")
+                    self.logger.info(f"    {session['session_key']} position details...")
                     position_details = urlopen(f"https://api.openf1.org/v1/position?session_key={session['session_key']}")
                     position_data = json.loads(position_details.read().decode('utf-8'))
                     position_actual = pd.DataFrame(position_data)
@@ -122,7 +125,7 @@ class LoadService:
             # Accessing Weather data
             weather_df = pd.DataFrame()
             for meeting in mtg_data:
-                logger.info(f"Fetching {meeting['meeting_name']} weather data...")
+                self.logger.info(f"Fetching {meeting['meeting_name']} weather data...")
                 response = urlopen(f"https://api.openf1.org/v1/weather?meeting_key={meeting['meeting_key']}")
                 weather_data = json.loads(response.read().decode('utf-8'))
                 weather_actual = pd.DataFrame(weather_data)
@@ -132,12 +135,12 @@ class LoadService:
             with sqlite3.connect(self.db_name) as conn:
                 weather_df.to_sql('weather', conn, if_exists='replace', index=False)
 
-            logger.info("All data successfully fetched and stored.")
+            self.logger.info("All data successfully fetched and stored.")
             self.status = "ready"  # Update status to ready
 
         except Exception as e:
             self.status = "error"  # Update status to error
-            logger.info(f"Error fetching or storing data: {e}")
+            self.logger.info(f"Error fetching or storing data: {e}")
             raise
     def internal_query(self):
         '''
@@ -190,11 +193,8 @@ def background_task():
         logger.info(f"Background task error: {e}")
 
 if __name__ == "__main__":
-    #Logger needed for console logs in the cloud
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
-
-
     #Starting background task
     threading.Thread(target=background_task, daemon=True).start()
     

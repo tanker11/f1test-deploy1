@@ -199,5 +199,5 @@ if __name__ == "__main__":
     threading.Thread(target=background_task, daemon=True).start()
     
     #Getting port info from environmental variable, run the app with that
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port)

@@ -12,7 +12,7 @@ class LoadService:
     '''
     Handles db and table creation
     '''
-    def __init__(self, loggervar, db_name="/home/site/db/loaddata.db"):
+    def __init__(self, loggervar, db_name="/home/loaddata.db"):
         #Logger needed for console logs in the cloud
         logging.basicConfig(level=logging.INFO)
         self.logger = loggervar
@@ -192,7 +192,7 @@ def background_task():
     try:
         service.fetch_and_store()
     except Exception as e:
-        logger.info(f"Background task error: {e}")
+        mylogger.info(f"Background task error: {e}")
 
 if __name__ == "__main__":
     #Starting background task

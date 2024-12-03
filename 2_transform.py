@@ -77,7 +77,7 @@ class LoadService:
     def run(self):
         #Monitor the slave service and transfer data when ready
         success = False
-        self.logger.info("Starting up")
+        self.logger.info("START")
         while not success:
             time.sleep(5)
             self.logger.info("Checking loading service status...")

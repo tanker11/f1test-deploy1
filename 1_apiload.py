@@ -77,6 +77,7 @@ class LoadService:
         '''
         Handles API access to the data tables and iterates through sessions if needed
         '''
+        self.logger.info("FETCH_AND_STORE CALLED")
         self.status = "loading"  # Set actual state of the service
         try:
             # Accessing meeting (weekend) list
@@ -189,6 +190,8 @@ def get_data():
 
 def background_task():
     #Background task to fetch and store data
+
+    mylogger.info("Starting fetch...")
     try:
         service.fetch_and_store()
     except Exception as e:

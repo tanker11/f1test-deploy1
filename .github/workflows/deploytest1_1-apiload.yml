@@ -7,7 +7,7 @@ name: Build and deploy Python app to Azure Web App - 1-apiload
 on:
   push:
     branches:
-      - deploytest1
+      - deploytest1aaa
   workflow_dispatch:
 
 jobs:

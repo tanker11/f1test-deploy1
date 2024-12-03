@@ -131,11 +131,11 @@ def get_data():
     #Fetch data from the SQLite database.
     return service.internal_query()
 
-if __name__ == "__main__":
-    #Starting background task
-    threading.Thread(target=service.run, daemon=True).start()
-    #Starting Flask
-    port = int(os.environ.get("PORT", 5001))
-    app.run(host="0.0.0.0", port=port)    
+
+#Starting background task
+threading.Thread(target=service.run, daemon=True).start()
+#Starting Flask
+port = int(os.environ.get("PORT", 5001))
+app.run(host="0.0.0.0", port=port)    
 
 

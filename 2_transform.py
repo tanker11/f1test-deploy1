@@ -4,12 +4,15 @@ import time
 import pandas as pd
 from flask import Flask, jsonify
 import threading
+import logging
+import os
 
 class LoadService:
     '''
     Handles db and tables creation
     '''
-    def __init__(self, slave_url, local_db_name="/app/db/transformdata.db"):
+    def __init__(self, loggervar, slave_url, local_db_name="/home/transformdata.db"):
+        self.logger = loggervar
         self.slave_url = slave_url
         self.local_db_name = local_db_name
         self.status = "waiting for loading service"  # Initial status
@@ -42,7 +45,7 @@ class LoadService:
             status = response.json().get("status", "unknown")
             return status == "ready"
         except requests.RequestException as e:
-            print(f"Failed to reach loading service: {e}")
+            self.logger.info(f"Failed to reach loading service: {e}")
             return False
 
     def transfer_data(self):
@@ -55,7 +58,7 @@ class LoadService:
             # Parse the data as a DataFrame
             data = pd.DataFrame(response.json())
             if data.empty:
-                print("No data returned from slave API.")
+                self.logger.info("No data returned from slave API.")
                 return
 
             # Write data to local SQLite database
@@ -63,10 +66,10 @@ class LoadService:
                 data.to_sql('session_data', local_conn, if_exists='replace', index=False)
 
             self.status = "ready"  # Update status to ready
-            print(f"Transferred {len(data)} rows to the local database.")
+            self.logger.info(f"Transferred {len(data)} rows to the local database.")
         except Exception as e:
             self.status = "error"  # Update status to error
-            print(f"Error during data transfer: {e}")
+            self.logger.info(f"Error during data transfer: {e}")
 
 
 
@@ -74,16 +77,16 @@ class LoadService:
     def run(self):
         #Monitor the slave service and transfer data when ready
         success = False
-        print("Starting up")
+        self.logger.info("Starting up")
         while not success:
             time.sleep(5)
-            print("Checking loading service status...")
+            self.logger.info("Checking loading service status...")
             if self.check_slave_status():
-                print("Loading service is ready. Transferring data...")
+                self.logger.info("Loading service is ready. Transferring data...")
                 self.transfer_data()
                 success = True
             else:
-                print("Loading is not ready. Waiting...")
+                self.logger.info("Loading is not ready. Waiting...")
 
     def internal_query(self):
 
@@ -112,8 +115,10 @@ class LoadService:
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
+logging.basicConfig(level=logging.INFO)
+mylogger = logging.getLogger(__name__)
 app = Flask(__name__)
-service = LoadService(slave_url="http://apiload1:5000") 
+service = LoadService(mylogger, slave_url="https://1-apiload-eearb3bvf4a2f6b8.northeurope-01.azurewebsites.net") 
 
 
 @app.route('/health', methods=['GET'])
@@ -130,6 +135,7 @@ if __name__ == "__main__":
     #Starting background task
     threading.Thread(target=service.run, daemon=True).start()
     #Starting Flask
-    app.run(host="0.0.0.0", port=5001)
+    port = int(os.environ.get("PORT", 5001))
+    app.run(host="0.0.0.0", port=port)    
 
 

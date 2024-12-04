@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
-name: Build and deploy Python app to Azure Web App - apiload1
+name: 1-apiload build and deploy
 
 on:
   push:
@@ -28,19 +28,19 @@ jobs:
           source venv/bin/activate
       
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements1.txt
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: zip release1.zip ./* -r
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
           name: python-app
           path: |
-            release.zip
+            release1.zip
             !venv/
 
   deploy:
@@ -59,20 +59,20 @@ jobs:
           name: python-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip
+        run: unzip release1.zip
 
       
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C51EF9E593B043089AB918B35288B381 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A32F2EFA67D54ABB82FAFE0B4355B0D4 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_97BC8F3B47124556974A54186EAE4B77 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_1330A415601B45CBAFA36D0F226BA156 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C07C2E66391F4D4A9461370A23C0A802 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_0C9B2FE260054C07905B0E617604C7CE }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'apiload1'
+          app-name: '1-apiload'
           slot-name: 'Production'
           

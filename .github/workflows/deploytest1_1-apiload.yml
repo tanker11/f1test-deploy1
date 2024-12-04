@@ -7,7 +7,7 @@ name: 1-apiload build and deploy
 on:
   push:
     branches:
-      - deploytest1aaa
+      - deploytest1
   workflow_dispatch:
 
 jobs:
